@@ -1,0 +1,374 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>Self-Training AI Neural Network</title>
+    <style>
+        body {
+            font-family: 'Courier New', Courier, monospace;
+            background-color: #333;
+            color: white;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            margin: 0;
+            padding: 20px;
+        }
+        canvas {
+            border: 2px solid #555;
+            background-color: #70c5ce; /* Sky color */
+            box-shadow: 0 0 20px rgba(0,0,0,0.5);
+        }
+        #ui {
+            margin-top: 15px;
+            width: 800px;
+            display: flex;
+            justify-content: space-between;
+        }
+        .stat-box {
+            background: #444;
+            padding: 10px;
+            border-radius: 5px;
+            min-width: 150px;
+        }
+        input[type="range"] {
+            width: 200px;
+        }
+    </style>
+</head>
+<body>
+
+    <h2>Self-Training AI (Neuroevolution)</h2>
+    <canvas id="gameCanvas" width="800" height="500"></canvas>
+
+    <div id="ui">
+        <div class="stat-box">
+            <div>Generation: <span id="genDisplay">1</span></div>
+            <div>Alive: <span id="aliveDisplay">0</span></div>
+        </div>
+        <div class="stat-box">
+            <div>Current Score: <span id="scoreDisplay">0</span></div>
+            <div>High Score: <span id="bestScoreDisplay">0</span></div>
+        </div>
+        <div class="stat-box">
+            <label for="speedSlider">Training Speed: <span id="speedDisplay">1x</span></label><br>
+            <input type="range" id="speedSlider" min="1" max="50" value="1">
+        </div>
+    </div>
+
+<script>
+/**
+ * CONFIGURATION
+ */
+const TOTAL_BIRDS = 1000;      // How many birds per generation
+const MUTATION_RATE = 0.1;    // How much to tweak the brain of the next gen (10%)
+const GAME_WIDTH = 800;
+const GAME_HEIGHT = 500;
+
+/**
+ * SIMPLE NEURAL NETWORK CLASS
+ * Structure: 4 Inputs -> 4 Hidden Neurons -> 1 Output
+ */
+class NeuralNetwork {
+    constructor(brain) {
+        if (brain) {
+            // Copy existing brain
+            this.weights_ih = JSON.parse(JSON.stringify(brain.weights_ih)); // Input -> Hidden
+            this.weights_ho = JSON.parse(JSON.stringify(brain.weights_ho)); // Hidden -> Output
+        } else {
+            // Initialize random brain
+            this.weights_ih = new Array(4).fill(0).map(() => new Array(5).fill(0).map(() => Math.random() * 2 - 1));
+            this.weights_ho = new Array(5).fill(0).map(() => Math.random() * 2 - 1);
+        }
+    }
+
+    // Standard Sigmoid Activation Function
+    sigmoid(x) {
+        return 1 / (1 + Math.exp(-x));
+    }
+
+    predict(inputs) {
+        // 1. Calculate Hidden Layer
+        // Inputs: [BirdY, BirdVelocity, PipeDistX, PipeGapY, Bias(1)]
+        let hiddenInputs = [...inputs, 1]; 
+        let hiddenOutputs = [];
+
+        for (let i = 0; i < 4; i++) {
+            let sum = 0;
+            for (let j = 0; j < hiddenInputs.length; j++) {
+                sum += hiddenInputs[j] * this.weights_ih[i][j];
+            }
+            hiddenOutputs[i] = this.sigmoid(sum);
+        }
+
+        // 2. Calculate Output Layer
+        let outputSum = 0;
+        let finalHidden = [...hiddenOutputs, 1]; // Add bias
+        for (let i = 0; i < finalHidden.length; i++) {
+            outputSum += finalHidden[i] * this.weights_ho[i];
+        }
+        
+        let output = this.sigmoid(outputSum);
+        return output > 0.5; // True = Jump, False = Fall
+    }
+
+    // Mutate weights for genetic evolution
+    mutate() {
+        // Mutate Input->Hidden
+        for (let i = 0; i < this.weights_ih.length; i++) {
+            for (let j = 0; j < this.weights_ih[i].length; j++) {
+                if (Math.random() < MUTATION_RATE) {
+                    this.weights_ih[i][j] += (Math.random() * 0.5 - 0.25); // Tweak weight slightly
+                }
+            }
+        }
+        // Mutate Hidden->Output
+        for (let i = 0; i < this.weights_ho.length; i++) {
+            if (Math.random() < MUTATION_RATE) {
+                this.weights_ho[i] += (Math.random() * 0.5 - 0.25);
+            }
+        }
+    }
+}
+
+/**
+ * BIRD CLASS
+ */
+class Bird {
+    constructor(brain) {
+        this.y = GAME_HEIGHT / 2;
+        this.x = 60;
+        this.gravity = 0.6;
+        this.lift = -10; // Jump strength
+        this.velocity = 0;
+        
+        this.brain = new NeuralNetwork(brain);
+        this.alive = true;
+        this.score = 0;       // Score for passing pipes
+        this.fitness = 0;     // Score based on time alive
+    }
+
+    think(pipes) {
+        // Find closest pipe
+        let closest = null;
+        let closestD = Infinity;
+        
+        for (let i = 0; i < pipes.length; i++) {
+            let d = (pipes[i].x + pipes[i].width) - this.x;
+            if (d > 0 && d < closestD) {
+                closest = pipes[i];
+                closestD = d;
+            }
+        }
+
+        if (closest != null) {
+            // Normalize inputs to 0-1 range for the Neural Network
+            let inputs = [
+                this.y / GAME_HEIGHT,                // Bird Height
+                this.velocity / 10,                  // Bird Velocity
+                closest.x / GAME_WIDTH,              // Dist to Pipe
+                closest.top / GAME_HEIGHT            // Pipe Gap Height
+            ];
+
+            let shouldJump = this.brain.predict(inputs);
+            if (shouldJump) {
+                this.up();
+            }
+        }
+    }
+
+    up() {
+        this.velocity = this.lift;
+    }
+
+    update() {
+        this.score++; // Incremental score for staying alive
+        this.velocity += this.gravity;
+        this.y += this.velocity;
+    }
+}
+
+/**
+ * PIPE CLASS
+ */
+class Pipe {
+    constructor() {
+        this.gap = 120;
+        this.top = Math.random() * (GAME_HEIGHT - this.gap - 100) + 50;
+        this.bottom = GAME_HEIGHT - (this.top + this.gap);
+        this.x = GAME_WIDTH;
+        this.width = 50;
+        this.speed = 3;
+    }
+
+    update() {
+        this.x -= this.speed;
+    }
+
+    offscreen() {
+        return this.x < -this.width;
+    }
+}
+
+/**
+ * GAME ENGINE & LOGIC
+ */
+const canvas = document.getElementById('gameCanvas');
+const ctx = canvas.getContext('2d');
+const uiGen = document.getElementById('genDisplay');
+const uiAlive = document.getElementById('aliveDisplay');
+const uiScore = document.getElementById('scoreDisplay');
+const uiBestScore = document.getElementById('bestScoreDisplay');
+const uiSpeed = document.getElementById('speedDisplay');
+const slider = document.getElementById('speedSlider');
+
+let birds = [];
+let savedBirds = []; // For genetic algorithm history
+let pipes = [];
+let counter = 0;
+let generation = 1;
+let highScore = 0;
+let gameSpeed = 1;
+
+// Initialize
+function setup() {
+    for (let i = 0; i < TOTAL_BIRDS; i++) {
+        birds.push(new Bird());
+    }
+    requestAnimationFrame(gameLoop);
+}
+
+// Genetic Algorithm: Create next generation
+function nextGeneration() {
+    calculateFitness();
+    generation++;
+    uiGen.innerText = generation;
+    
+    // Pick the best bird from last round
+    let bestBird = savedBirds[savedBirds.length - 1]; // Sorted by fitness
+    
+    birds = [];
+    
+    // Elitism: Keep the absolute best bird unchanged (so we don't lose progress)
+    let champion = new Bird(bestBird.brain);
+    birds.push(champion);
+
+    // Create the rest based on the champion, but mutated
+    for (let i = 1; i < TOTAL_BIRDS; i++) {
+        let baby = new Bird(bestBird.brain);
+        baby.brain.mutate();
+        birds.push(baby);
+    }
+    
+    savedBirds = [];
+    pipes = [];
+    counter = 0;
+}
+
+// Normalize fitness score 
+function calculateFitness() {
+    // Sort birds by score
+    savedBirds.sort((a, b) => a.score - b.score);
+    if(savedBirds[savedBirds.length-1].score > highScore) {
+        highScore = savedBirds[savedBirds.length-1].score;
+        uiBestScore.innerText = Math.floor(highScore / 100); // Approximate pipe count
+    }
+}
+
+// Main Loop
+function gameLoop() {
+    // Handling Speed Slider
+    gameSpeed = parseInt(slider.value);
+    uiSpeed.innerText = gameSpeed + "x";
+
+    // Run game logic X times per frame based on slider
+    for (let n = 0; n < gameSpeed; n++) {
+        
+        // Spawn Pipes
+        if (counter % 120 == 0) {
+            pipes.push(new Pipe());
+        }
+        counter++;
+
+        // Update Pipes
+        for (let i = pipes.length - 1; i >= 0; i--) {
+            pipes[i].update();
+
+            // Collision Detection
+            for (let j = birds.length - 1; j >= 0; j--) {
+                if (
+                    birds[j].x + 20 > pipes[i].x && 
+                    birds[j].x < pipes[i].x + pipes[i].width && 
+                    (birds[j].y < pipes[i].top || birds[j].y + 20 > GAME_HEIGHT - pipes[i].bottom)
+                ) {
+                    savedBirds.push(birds.splice(j, 1)[0]);
+                }
+            }
+
+            if (pipes[i].offscreen()) {
+                pipes.splice(i, 1);
+            }
+        }
+
+        // Update Birds
+        for (let i = birds.length - 1; i >= 0; i--) {
+            if (birds[i].y > GAME_HEIGHT || birds[i].y < 0) {
+                savedBirds.push(birds.splice(i, 1)[0]);
+            } else {
+                birds[i].think(pipes);
+                birds[i].update();
+            }
+        }
+
+        // Check if generation dead
+        if (birds.length === 0) {
+            nextGeneration();
+            break; // Exit the speed loop to render immediately
+        }
+    }
+
+    // DRAW EVERYTHING (Only once per frame)
+    draw();
+    
+    requestAnimationFrame(gameLoop);
+}
+
+function draw() {
+    // Background
+    ctx.fillStyle = '#70c5ce';
+    ctx.fillRect(0, 0, GAME_WIDTH, GAME_HEIGHT);
+
+    // Pipes
+    ctx.fillStyle = '#228B22';
+    for (let pipe of pipes) {
+        ctx.fillRect(pipe.x, 0, pipe.width, pipe.top);
+        ctx.fillRect(pipe.x, GAME_HEIGHT - pipe.bottom, pipe.width, pipe.bottom);
+    }
+
+    // Birds
+    // Draw all birds transparent
+    ctx.fillStyle = 'rgba(255, 255, 0, 0.3)';
+    for (let bird of birds) {
+        ctx.fillRect(bird.x, bird.y, 20, 20);
+    }
+    
+    // Draw the "Lead" bird solid
+    if(birds.length > 0) {
+        ctx.fillStyle = 'yellow';
+        ctx.strokeStyle = 'black';
+        ctx.lineWidth = 2;
+        ctx.fillRect(birds[0].x, birds[0].y, 20, 20);
+        ctx.strokeRect(birds[0].x, birds[0].y, 20, 20);
+    }
+
+    // UI Updates
+    uiAlive.innerText = birds.length;
+    uiScore.innerText = Math.floor(counter / 120); // Rough pipe count
+}
+
+// Start
+setup();
+
+</script>
+</body>
+</html>
