@@ -1,0 +1,65 @@
+# Neuroevolution Flappy Bird AI 
+
+A single-file HTML5 simulation that uses **Neural Networks** and **Genetic Algorithms** (Neuroevolution) to train an AI to play a "Flappy Bird" style game from scratch.
+
+No external libraries (like TensorFlow or p5.js) are used. Everything is built with raw JavaScript to demonstrate the core concepts of Machine Learning.
+
+## 🚀 Quick Start
+
+1.  **Download:** Copy the source code into a file named `index.html`.
+2.  **Run:** Open `index.html` in any modern web browser (Chrome, Firefox, Safari).
+3.  **Watch:** Observe as the birds are initially stupid, but evolve to become masters of the game within 5–10 generations.
+
+## 🕹️ How to Use
+
+*   **Game Speed Slider:** Use the slider at the bottom to speed up the simulation (up to 50x). This allows you to train the birds through hundreds of generations in just a few minutes.
+*   **Stats Panel:**
+    *   **Generation:** The current iteration of evolution.
+    *   **Alive:** How many birds in the current batch are still flying.
+    *   **High Score:** The furthest distance any bird has ever traveled.
+
+## 🧠 How it Works
+
+The AI combines two distinct concepts:
+
+### 1. The Neural Network (The Brain)
+Each bird has its own unique brain. It is a simple Perceptron network:
+*   **Input Layer (4 Neurons):** The bird "sees" the world through 4 numbers:
+    1.  Bird's Y Position (Height).
+    2.  Bird's Velocity (Falling down or jumping up).
+    3.  Distance to the next pipe.
+    4.  Height of the gap in the next pipe.
+*   **Hidden Layer:** 4 Neurons that process the inputs using weights and biases.
+*   **Output Layer (1 Neuron):** Provides a value between 0 and 1. If the value is > 0.5, the bird **jumps**.
+
+### 2. Genetic Algorithm (The Evolution)
+The AI learns through "Survival of the Fittest":
+1.  **Spawn:** We create 100 birds with completely random brains.
+2.  **Selection:** We let them play. Most crash immediately. We identify the bird that stayed alive the longest.
+3.  **Crossover/Mutation:** We destroy the losers. We clone the winner (The Champion) to create the next generation of 100 birds.
+4.  **Mutation:** We slightly tweak the brain weights of the clones (by random values). This simulates biological mutation.
+5.  **Repeat:** If a mutation helps a bird fly further, it becomes the new Champion. If it makes the bird worse, it dies.
+
+## 🛠️ Configuration (Modding)
+
+You can tweak the constants at the top of the `<script>` tag in the HTML file to change how the AI learns:
+
+```javascript
+const TOTAL_BIRDS = 100;    // Increase for more genetic variety (slower performance)
+const MUTATION_RATE = 0.1;  // High = drastic evolution, Low = fine-tuning
+```
+
+## 📂 Project Structure
+
+This is a **Single File Application**.
+*   **HTML:** Structure and Slider UI.
+*   **CSS:** Styling for the dark mode UI.
+*   **JS:**
+    *   `NeuralNetwork` class: Matrix math and activation functions.
+    *   `Bird` class: Physics and brain implementation.
+    *   `Pipe` class: Obstacle logic.
+    *   `nextGeneration()`: The logic handling selection and mutation.
+
+## 📝 License
+
+This project is open source. Feel free to use it for educational purposes, modify it, or integrate it into your own projects.
